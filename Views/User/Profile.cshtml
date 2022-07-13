@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Profile";
+}
+
+<h1>
+    Email: @User.Identity.Name
+</h1>
+
+<h1>
+    Name: @User.FindFirst("UserName").Value
+</h1>
