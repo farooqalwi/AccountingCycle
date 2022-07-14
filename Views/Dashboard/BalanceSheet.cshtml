@@ -8,3 +8,111 @@
 </div>
 
 
+<div class="card mb-2">
+    <div class="card-body">
+        <h5 class="card-title"></h5>
+
+
+        <div class="row g-3">
+            <div class="col-5">
+                <div class="form-group">
+                    <label for="date" class="form-label">Select Date</label>
+                    <input name="ctl00$ContentPlaceHolder$date" type="date" id="ContentPlaceHolder_date" class="form-control" value="2022-07-14">
+                </div>
+
+                <input type="submit" name="ctl00$ContentPlaceHolder$btnSubmit" value="Generate" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
+            </div>
+
+
+
+
+        </div>
+
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 id="ContentPlaceHolder_companyName" class="card-title text-center">UBIT</h5>
+        <h5 class="card-title text-center">Balance Sheet</h5>
+        <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">Thu, 14 Jul 2022</h5>
+
+        <div class="row">
+            <div class="col-6 card p-1">
+                <h6 class="card-title">Asset</h6>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Transaction Date</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Transaction Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <th scope="row">1</th>
+                            <td scope="row">Thu, 14 Jul 2022</td>
+                            <td scope="row">100</td>
+                            <td scope="row">Debit</td>
+
+
+
+                        </tr>
+
+
+
+                    </tbody>
+                </table>
+                <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_assetSum" class="badge badge-primary">100</span></strong>
+            </div>
+            <div class="col-6 card p-1">
+                <h6 class="card-title">Liability</h6>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Transaction Date</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Transaction Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <th scope="row">1</th>
+                            <td scope="row">Thu, 14 Jul 2022</td>
+                            <td scope="row">230</td>
+                            <td scope="row">Debit</td>
+
+
+                        </tr>
+
+                        <tr>
+                            <th scope="row">2</th>
+                            <td scope="row">Thu, 14 Jul 2022</td>
+                            <td scope="row">200</td>
+                            <td scope="row">Credit</td>
+
+
+                        </tr>
+
+
+
+                    </tbody>
+                </table>
+                <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_liabilitySum" class="badge badge-primary">30</span></strong>
+                <hr />
+                <h6 class="card-title">Owners Equity</h6>
+                <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_equitySum" class="badge badge-primary">130</span></strong>
+                <hr />
+                <h5 class="card-title text-left">Liabilty + Owners Equity: &nbsp; <strong id="ContentPlaceHolder_liabEquitySum" class="badge badge-secondary">160</strong></h5>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+

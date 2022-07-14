@@ -8,3 +8,97 @@
 </div>
 
 
+
+<div class="card mb-2">
+    <div class="card-body">
+        <h5 class="card-title"></h5>
+
+
+        <div class="row g-3">
+            <div class="col-5">
+                <div class="form-group">
+                    <label for="date" class="form-label">Select Date</label>
+                    <input name="ctl00$ContentPlaceHolder$date" type="date" id="ContentPlaceHolder_date" class="form-control" value="2022-07-14">
+                </div>
+
+                <input type="submit" name="ctl00$ContentPlaceHolder$btnSubmit" value="Generate" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
+            </div>
+
+        </div><!-- Vertical Form -->
+
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 id="ContentPlaceHolder_companyName" class="card-title text-center">UBIT</h5>
+        <h5 class="card-title text-center">Income Sheet</h5>
+        <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">July 2022</h5>
+
+
+        <div class="border p-2">
+            <h6 class="card-title">Expense</h6>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Transaction Date</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Transaction Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <th scope="row">1</th>
+                        <td scope="row">Thu, 14 Jul 2022</td>
+                        <td scope="row">100</td>
+                        <td scope="row">Credit</td>
+
+
+
+                    </tr>
+
+
+
+                </tbody>
+            </table>
+            <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_expenseSum" class="badge badge-primary">100</span></strong>
+        </div>
+
+        <br />
+
+        <div class="border p-2">
+            <h6 class="card-title">Revenue</h6>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Transaction Date</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Transaction Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <th scope="row">1</th>
+                        <td scope="row">Thu, 14 Jul 2022</td>
+                        <td scope="row">200</td>
+                        <td scope="row">Debit</td>
+
+
+                    </tr>
+
+
+
+                </tbody>
+            </table>
+            <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_revenueSum" class="badge badge-primary">200</span></strong>
+        </div>
+
+        <hr>
+        <h5 class="card-title text-left">Net Income: &nbsp; <strong id="ContentPlaceHolder_netIncome" class="badge badge-secondary">100</strong></h5>
+    </div>
+</div>
+
