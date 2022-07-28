@@ -1,5 +1,17 @@
-﻿@{
+﻿@using AccountingCycle.DataBaseContext
+@using Microsoft.EntityFrameworkCore
+@inject DbContextOptions<AccountingCycleContext> _context
+
+@{
     ViewData["Title"] = "T-Account";
+
+    var dbContext = new AccountingCycleContext(_context);
+    var FinancialElementType = await dbContext.FinancialElementType.ToListAsync();
+    var GeneralJournalEntries = await dbContext.GeneralJournalEntries.ToListAsync();
+    var JournalEntries = await dbContext.JournalEntries.ToListAsync();
+    var Transactiontype = await dbContext.Transactiontype.ToListAsync();
+
+    var CurrentUserGeneralJournalEntries = GeneralJournalEntries.Where(x => x.UserId == Int32.Parse(User.FindFirst("UserId").Value));
 }
 
 <div class="text-center">
@@ -17,30 +29,60 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-
                             <th scope="col">Debit</th>
                             <th scope="col">Credit</th>
                         </tr>
                     </thead>
+
+                    @{
+                        double debitSum = 0;
+                        double creditSum = 0;
+                        double total = 0;
+                    }
+
                     <tbody>
+                        @if (CurrentUserGeneralJournalEntries.Count() > 0)
+                        {
+                            foreach (var generalJournalEntry in CurrentUserGeneralJournalEntries)
+                            {
+                                foreach (var entry in JournalEntries)
+                                {
+                                    if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 1)
+                                    {
+                                        <tr>
+                                            @if (entry.TransactionTypeId == 1)
+                                            {
+                                                debitSum += entry.Amount;
 
-                        <tr>
-                            <td scope="row">100</td>
-                            <td scope="row"></td>
+                                                <td scope="row">@entry.Amount</td>
+                                                <td scope="row"></td>
+                                            }
+                                            else if (entry.TransactionTypeId == 2)
+                                            {
+                                                creditSum += entry.Amount;
 
-                        </tr>
+                                                <td scope="row"></td>
+                                                <td scope="row">@entry.Amount</td>
+                                            }
 
-                        <tr>
-                            <td scope="row">420</td>
-                            <td scope="row"></td>
-
-                        </tr>
-
-
-
+                                        </tr>
+                                    }
+                                }
+                            }
+                        }
                     </tbody>
                 </table>
-                <strong id="ContentPlaceHolder_assetSumContainer" style="float:left;">Total: &nbsp; <span id="ContentPlaceHolder_assetSum" class="badge badge-primary">520</span></strong>
+                @{
+                    if (debitSum >= creditSum)
+                    {
+                        total = debitSum - creditSum;
+                    }
+                    else
+                    {
+                        total = creditSum - debitSum;
+                    }
+                }
+                <strong id="ContentPlaceHolder_assetSumContainer" style="float:left;">Total: &nbsp; <span id="ContentPlaceHolder_assetSum" class="badge badge-primary">@total</span></strong>
             </div>
 
             <div class="col-md-4 border p-3">
@@ -48,24 +90,62 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-
                             <th scope="col">Debit</th>
                             <th scope="col">Credit</th>
                         </tr>
                     </thead>
+
+                    @{
+                        debitSum = 0;
+                        creditSum = 0;
+                        total = 0;
+                    }
+
                     <tbody>
+                        @if (CurrentUserGeneralJournalEntries.Count() > 0)
+                        {
+                            foreach (var generalJournalEntry in CurrentUserGeneralJournalEntries)
+                            {
+                                foreach (var entry in JournalEntries)
+                                {
+                                    if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 2)
+                                    {
+                                        <tr>
+                                            @if (entry.TransactionTypeId == 1)
+                                            {
+                                                debitSum += entry.Amount;
 
-                        <tr>
-                            <td scope="row"></td>
-                            <td scope="row">100</td>
+                                                <td scope="row">@entry.Amount</td>
+                                                <td scope="row"></td>
+                                            }
+                                            else if (entry.TransactionTypeId == 2)
+                                            {
+                                                creditSum += entry.Amount;
 
-                        </tr>
+                                                <td scope="row"></td>
+                                                <td scope="row">@entry.Amount</td>
+                                            }
+
+                                        </tr>
+                                    }
+                                }
+                            }
 
 
-
+                        }
                     </tbody>
                 </table>
-                <strong id="ContentPlaceHolder_expenseSumContainer" style="float:right;">Total: &nbsp; <span id="ContentPlaceHolder_expenseSum" class="badge badge-primary">100</span></strong>
+                @{
+                    if (debitSum >= creditSum)
+                    {
+                        total = debitSum - creditSum;
+                    }
+                    else
+                    {
+                        total = creditSum - debitSum;
+                    }
+                }
+                <strong id="ContentPlaceHolder_expenseSumContainer" style="float:right;">Total: &nbsp; <span id="ContentPlaceHolder_expenseSum" class="badge badge-primary">@total</span></strong>
             </div>
 
             <div class="col-md-4 border p-3">
@@ -73,30 +153,62 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-
                             <th scope="col">Debit</th>
                             <th scope="col">Credit</th>
                         </tr>
                     </thead>
+
+                    @{
+                        debitSum = 0;
+                        creditSum = 0;
+                        total = 0;
+                    }
+
                     <tbody>
+                        @if (CurrentUserGeneralJournalEntries.Count() > 0)
+                        {
+                            foreach (var generalJournalEntry in CurrentUserGeneralJournalEntries)
+                            {
+                                foreach (var entry in JournalEntries)
+                                {
+                                    if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 3)
+                                    {
+                                        <tr>
+                                            @if (entry.TransactionTypeId == 1)
+                                            {
+                                                debitSum += entry.Amount;
 
-                        <tr>
-                            <td scope="row">230</td>
-                            <td scope="row"></td>
+                                                <td scope="row">@entry.Amount</td>
+                                                <td scope="row"></td>
+                                            }
+                                            else if (entry.TransactionTypeId == 2)
+                                            {
+                                                creditSum += entry.Amount;
 
-                        </tr>
+                                                <td scope="row"></td>
+                                                <td scope="row">@entry.Amount</td>
+                                            }
 
-                        <tr>
-                            <td scope="row"></td>
-                            <td scope="row">300</td>
-
-                        </tr>
-
+                                        </tr>
+                                    }
+                                }
+                            }
 
 
+                        }
                     </tbody>
                 </table>
-                <strong id="ContentPlaceHolder_liabSumContainer" style="float:right;">Total: &nbsp; <span id="ContentPlaceHolder_liabSum" class="badge badge-primary">70</span></strong>
+                @{
+                    if (debitSum >= creditSum)
+                    {
+                        total = debitSum - creditSum;
+                    }
+                    else
+                    {
+                        total = creditSum - debitSum;
+                    }
+                }
+                <strong id="ContentPlaceHolder_liabSumContainer" style="float:right;">Total: &nbsp; <span id="ContentPlaceHolder_liabSum" class="badge badge-primary">@total</span></strong>
             </div>
 
             <div class="col-md-4 border p-3">
@@ -104,15 +216,62 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-
                             <th scope="col">Debit</th>
                             <th scope="col">Credit</th>
                         </tr>
                     </thead>
+
+                    @{
+                        debitSum = 0;
+                        creditSum = 0;
+                        total = 0;
+                    }
+
                     <tbody>
+                        @if (CurrentUserGeneralJournalEntries.Count() > 0)
+                        {
+                            foreach (var generalJournalEntry in CurrentUserGeneralJournalEntries)
+                            {
+                                foreach (var entry in JournalEntries)
+                                {
+                                    if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 4)
+                                    {
+                                        <tr>
+                                            @if (entry.TransactionTypeId == 1)
+                                            {
+                                                debitSum += entry.Amount;
+
+                                                <td scope="row">@entry.Amount</td>
+                                                <td scope="row"></td>
+                                            }
+                                            else if (entry.TransactionTypeId == 2)
+                                            {
+                                                creditSum += entry.Amount;
+
+                                                <td scope="row"></td>
+                                                <td scope="row">@entry.Amount</td>
+                                            }
+
+                                        </tr>
+                                    }
+                                }
+                            }
+
+
+                        }
                     </tbody>
                 </table>
-                <strong id="ContentPlaceHolder_revenueSumContainer" style="float:left;">Total: &nbsp; <span id="ContentPlaceHolder_revenueSum" class="badge badge-primary">0</span></strong>
+                @{
+                    if (debitSum >= creditSum)
+                    {
+                        total = debitSum - creditSum;
+                    }
+                    else
+                    {
+                        total = creditSum - debitSum;
+                    }
+                }
+                <strong id="ContentPlaceHolder_revenueSumContainer" style="float:left;">Total: &nbsp; <span id="ContentPlaceHolder_revenueSum" class="badge badge-primary">@total</span></strong>
             </div>
 
             <div class="col-md-4 border p-3">
@@ -120,30 +279,62 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-
                             <th scope="col">Debit</th>
                             <th scope="col">Credit</th>
                         </tr>
                     </thead>
+
+                    @{
+                        debitSum = 0;
+                        creditSum = 0;
+                        total = 0;
+                    }
+
                     <tbody>
+                        @if (CurrentUserGeneralJournalEntries.Count() > 0)
+                        {
+                            foreach (var generalJournalEntry in CurrentUserGeneralJournalEntries)
+                            {
+                                foreach (var entry in JournalEntries)
+                                {
+                                    if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 5)
+                                    {
+                                        <tr>
+                                            @if (entry.TransactionTypeId == 1)
+                                            {
+                                                debitSum += entry.Amount;
 
-                        <tr>
-                            <td scope="row"></td>
-                            <td scope="row">230</td>
+                                                <td scope="row">@entry.Amount</td>
+                                                <td scope="row"></td>
+                                            }
+                                            else if (entry.TransactionTypeId == 2)
+                                            {
+                                                creditSum += entry.Amount;
 
-                        </tr>
+                                                <td scope="row"></td>
+                                                <td scope="row">@entry.Amount</td>
+                                            }
 
-                        <tr>
-                            <td scope="row"></td>
-                            <td scope="row">120</td>
-
-                        </tr>
-
+                                        </tr>
+                                    }
+                                }
+                            }
 
 
+                        }
                     </tbody>
                 </table>
-                <strong id="ContentPlaceHolder_capitalSumContainer" style="float:right;">Total: &nbsp; <span id="ContentPlaceHolder_capitalSum" class="badge badge-primary">350</span></strong>
+                @{
+                    if (debitSum >= creditSum)
+                    {
+                        total = debitSum - creditSum;
+                    }
+                    else
+                    {
+                        total = creditSum - debitSum;
+                    }
+                }
+                <strong id="ContentPlaceHolder_capitalSumContainer" style="float:right;">Total: &nbsp; <span id="ContentPlaceHolder_capitalSum" class="badge badge-primary">@total</span></strong>
             </div>
 
         </div>

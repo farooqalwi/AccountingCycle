@@ -4,8 +4,6 @@
     ViewBag.Title = "Login";
 }
 
-
-
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
@@ -45,18 +43,10 @@
         </div>
 
         <div class="row">
-            <div class="col-md-4"></div>
-            <div class="col-md-4 ">
-                <div class="row">
-                    <div class="col-md-6">
-                        @Html.ActionLink("Change Password", "ChangePassword", "User")
-                    </div>
-                    <div class="col-md-6 text-end">
-                        @Html.ActionLink("Create New Account", "Register", "User")
-                    </div>
-                </div>
+            <div class="col-md-12 text-center">
+                @Html.ActionLink("Create New Account", "Register", "User")
             </div>
-            <div class="col-md-4"></div>
+            
         </div>
 
     </div>

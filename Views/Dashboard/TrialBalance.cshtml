@@ -1,5 +1,155 @@
-﻿@{
+﻿@using AccountingCycle.DataBaseContext
+@using Microsoft.EntityFrameworkCore
+@inject DbContextOptions<AccountingCycleContext> _context
+
+@{
     ViewData["Title"] = "Trial Balance";
+
+    var dbContext = new AccountingCycleContext(_context);
+    var FinancialElementType = await dbContext.FinancialElementType.ToListAsync();
+    var GeneralJournalEntries = await dbContext.GeneralJournalEntries.ToListAsync();
+    var JournalEntries = await dbContext.JournalEntries.ToListAsync();
+    var Transactiontype = await dbContext.Transactiontype.ToListAsync();
+
+    var CurrentUserGeneralJournalEntries = GeneralJournalEntries.Where(x => x.UserId == Int32.Parse(User.FindFirst("UserId").Value));
+
+    double assetDebit = 0;
+    double assetCredit = 0;
+    double totalAsset = 0;
+
+    double expenseDebit = 0;
+    double expenseCredit = 0;
+    double totalExpense = 0;
+
+    double liabilityDebit = 0;
+    double liabilityCredit = 0;
+    double totalLiability = 0;
+
+    double revenueDebit = 0;
+    double revenueCredit = 0;
+    double totalRevenue = 0;
+
+    double capitalDebit = 0;
+    double capitalCredit = 0;
+    double totalCapital = 0;
+
+    if (CurrentUserGeneralJournalEntries.Count() > 0)
+    {
+        foreach (var generalJournalEntry in CurrentUserGeneralJournalEntries)
+        {
+            foreach (var entry in JournalEntries)
+            {
+                if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 1)
+                {
+
+                    @if (entry.TransactionTypeId == 1)
+                    {
+                        assetDebit += entry.Amount;
+                    }
+                    else if (entry.TransactionTypeId == 2)
+                    {
+                        assetCredit += entry.Amount;
+                    }
+                }
+                else if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 2)
+                {
+
+                    @if (entry.TransactionTypeId == 1)
+                    {
+                        expenseDebit += entry.Amount;
+                    }
+                    else if (entry.TransactionTypeId == 2)
+                    {
+                        expenseCredit += entry.Amount;
+                    }
+                }
+                else if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 3)
+                {
+
+                    @if (entry.TransactionTypeId == 1)
+                    {
+                        liabilityDebit += entry.Amount;
+                    }
+                    else if (entry.TransactionTypeId == 2)
+                    {
+                        liabilityCredit += entry.Amount;
+                    }
+                }
+                else if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 4)
+                {
+
+                    @if (entry.TransactionTypeId == 1)
+                    {
+                        revenueDebit += entry.Amount;
+                    }
+                    else if (entry.TransactionTypeId == 2)
+                    {
+                        revenueCredit += entry.Amount;
+                    }
+                }
+                else if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 5)
+                {
+
+                    @if (entry.TransactionTypeId == 1)
+                    {
+                        capitalDebit += entry.Amount;
+                    }
+                    else if (entry.TransactionTypeId == 2)
+                    {
+                        capitalCredit += entry.Amount;
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    if (assetDebit >= assetCredit)
+    {
+        totalAsset = assetDebit - assetCredit;
+    }
+    else
+    {
+        totalAsset = assetCredit - assetDebit;
+    }
+
+    if (expenseDebit >= expenseCredit)
+    {
+        totalExpense = expenseDebit - expenseCredit;
+    }
+    else
+    {
+        totalExpense = expenseCredit - expenseDebit;
+    }
+
+    if (liabilityDebit >= liabilityCredit)
+    {
+        totalLiability = liabilityDebit - liabilityCredit;
+    }
+    else
+    {
+        totalLiability = liabilityCredit - liabilityDebit;
+    }
+
+    if (revenueDebit >= revenueCredit)
+    {
+        totalRevenue = revenueDebit - revenueCredit;
+    }
+    else
+    {
+        totalRevenue = revenueCredit - revenueDebit;
+    }
+
+    if (capitalDebit >= capitalCredit)
+    {
+        totalCapital = capitalDebit - capitalCredit;
+    }
+    else
+    {
+        totalCapital = capitalCredit - capitalDebit;
+    }
+
 }
 
 <div class="text-center">
@@ -9,7 +159,7 @@
 
 <div class="card">
     <div class="card-body">
-        
+
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -25,14 +175,14 @@
                 <tr>
                     <td scope="row">1</td>
                     <td scope="row">Asset</td>
-                    <td scope="row">100</td>
+                    <td scope="row">@totalAsset</td>
                     <td scope="row"></td>
                 </tr>
 
                 <tr>
                     <td scope="row">2</td>
                     <td scope="row">Expense</td>
-                    <td scope="row">100</td>
+                    <td scope="row">@totalExpense</td>
                     <td scope="row"></td>
                 </tr>
 
@@ -40,21 +190,21 @@
                     <td scope="row">3</td>
                     <td scope="row">Liability</td>
                     <td scope="row"></td>
-                    <td scope="row">230</td>
+                    <td scope="row">@totalLiability</td>
                 </tr>
 
                 <tr>
                     <td scope="row">4</td>
                     <td scope="row">Revenue</td>
                     <td scope="row"></td>
-                    <td scope="row">0</td>
+                    <td scope="row">@totalRevenue</td>
                 </tr>
 
                 <tr>
                     <td scope="row">5</td>
                     <td scope="row">Capital</td>
                     <td scope="row"></td>
-                    <td scope="row">230</td>
+                    <td scope="row">@totalCapital</td>
                 </tr>
 
             </tbody>

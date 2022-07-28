@@ -1,104 +1,198 @@
-﻿@{
+﻿@model IEnumerable<AccountingCycle.DataBaseContext.GeneralJournalEntries>
+@using AccountingCycle.DataBaseContext
+@using Microsoft.EntityFrameworkCore
+@inject DbContextOptions<AccountingCycleContext> _context
+
+@{
     ViewData["Title"] = "Income Statement";
+
+    var dbContext = new AccountingCycleContext(_context);
+    var FinancialElementType = await dbContext.FinancialElementType.ToListAsync();
+    var JournalEntries = await dbContext.JournalEntries.ToListAsync();
+    var Transactiontype = await dbContext.Transactiontype.ToListAsync();
 }
+
+
 
 <div class="text-center">
     <p class="display-4">Income Statement</p>
 
 </div>
 
+<form asp-action="IncomeStatement" asp-controller="Dashboard">
+    <div class="card mb-2">
+        <div class="card-body">
+            <h5 class="card-title"></h5>
+            <div class="row g-3">
+                <div class="col-5">
+                    <div class="form-group">
+                        <label for="date" class="form-label">Select Date</label>
+                        <input name="date" type="date" id="date" class="form-control">
+                    </div>
 
-
-<div class="card mb-2">
-    <div class="card-body">
-        <h5 class="card-title"></h5>
-
-
-        <div class="row g-3">
-            <div class="col-5">
-                <div class="form-group">
-                    <label for="date" class="form-label">Select Date</label>
-                    <input name="ctl00$ContentPlaceHolder$date" type="date" id="ContentPlaceHolder_date" class="form-control" value="2022-07-14">
+                    <input type="submit" name="btnSubmit" value="Generate" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
                 </div>
+            </div>
+        </div>
+    </div>
+</form>
 
-                <input type="submit" name="ctl00$ContentPlaceHolder$btnSubmit" value="Generate" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
+@if (Model != null && Model.Count() > 0 && Model.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 id="ContentPlaceHolder_companyName" class="card-title text-center">@User.FindFirst("UserName").Value and Co.</h5>
+            <h5 class="card-title text-center">Income Statement</h5>
+            <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">For the month ended, @Model.FirstOrDefault().TransactionDate.ToString("MMMM yyyy")</h5>
+            
+
+            <div class="border p-2">
+                <h6 class="card-title">Expense</h6>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Transaction Date</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Transaction Type</th>
+                        </tr>
+                    </thead>
+                    @{
+                        double expenseDebitSum = 0;
+                        double expenseCreditSum = 0;
+                        double expenseTotal = 0;
+                    }
+
+                    <tbody>
+                        @if (Model != null && Model.Count() > 0 && Model.Any())
+                        {
+                            int count = 0;
+                            foreach (var generalJournalEntry in Model)
+                            {
+                                foreach (var entry in JournalEntries)
+                                {
+                                    if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 2)
+                                    {
+                                        count++;
+                                        <tr>
+                                            <th scope="row">@count</th>
+                                            <td scope="row">@generalJournalEntry.TransactionDate.ToString("dd MMMM yyyy")</td>
+                                            <td scope="row">@entry.Amount</td>
+
+                                            @if (entry.TransactionTypeId == 1)
+                                            {
+                                                expenseDebitSum += entry.Amount;
+
+                                                <td scope="row">Debit</td>
+                                            }
+                                            else if (entry.TransactionTypeId == 2)
+                                            {
+                                                expenseCreditSum += entry.Amount;
+
+                                                <td scope="row">Credit</td>
+                                            }
+                                        </tr>
+                                    }
+                                }
+                            }
+                        }
+
+                    </tbody>
+                </table>
+                @{
+                    if (expenseDebitSum >= expenseCreditSum)
+                    {
+                        expenseTotal = expenseDebitSum - expenseCreditSum;
+                    }
+                    else
+                    {
+                        expenseTotal = expenseCreditSum - expenseDebitSum;
+                    }
+                }
+                <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_expenseSum" class="badge badge-primary">@expenseTotal</span></strong>
             </div>
 
-        </div><!-- Vertical Form -->
+            <br />
 
-    </div>
-</div>
+            <div class="border p-2">
+                <h6 class="card-title">Revenue</h6>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Transaction Date</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Transaction Type</th>
+                        </tr>
+                    </thead>
 
-<div class="card">
-    <div class="card-body">
-        <h5 id="ContentPlaceHolder_companyName" class="card-title text-center">UBIT</h5>
-        <h5 class="card-title text-center">Income Sheet</h5>
-        <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">July 2022</h5>
+                    @{
+                        double revenueDebitSum = 0;
+                        double revenueCreditSum = 0;
+                        double revenueTotal = 0;
+                        double netIncome = 0;
+                    }
 
+                    <tbody>
+                        @if (Model != null && Model.Count() > 0 && Model.Any())
+                        {
+                            int count = 0;
+                            foreach (var generalJournalEntry in Model)
+                            {
+                                foreach (var entry in JournalEntries)
+                                {
+                                    if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 4)
+                                    {
+                                        count++;
+                                        <tr>
+                                            <th scope="row">@count</th>
+                                            <td scope="row">@generalJournalEntry.TransactionDate.ToString("dd MMMM yyyy")</td>
+                                            <td scope="row">@entry.Amount</td>
 
-        <div class="border p-2">
-            <h6 class="card-title">Expense</h6>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Transaction Date</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col">Transaction Type</th>
-                    </tr>
-                </thead>
-                <tbody>
+                                            @if (entry.TransactionTypeId == 1)
+                                            {
+                                                revenueDebitSum += entry.Amount;
 
-                    <tr>
-                        <th scope="row">1</th>
-                        <td scope="row">Thu, 14 Jul 2022</td>
-                        <td scope="row">100</td>
-                        <td scope="row">Credit</td>
+                                                <td scope="row">Debit</td>
+                                            }
+                                            else if (entry.TransactionTypeId == 2)
+                                            {
+                                                revenueCreditSum += entry.Amount;
 
+                                                <td scope="row">Credit</td>
+                                            }
+                                        </tr>
+                                    }
+                                }
+                            }
+                        }
 
+                    </tbody>
+                </table>
+                @{
+                    if (revenueDebitSum >= revenueCreditSum)
+                    {
+                        revenueTotal = revenueDebitSum - revenueCreditSum;
+                    }
+                    else
+                    {
+                        revenueTotal = revenueCreditSum - revenueDebitSum;
+                    }
 
-                    </tr>
+                    netIncome = revenueTotal - expenseTotal;
+                }
+                <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_revenueSum" class="badge badge-primary">@revenueTotal</span></strong>
+            </div>
 
-
-
-                </tbody>
-            </table>
-            <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_expenseSum" class="badge badge-primary">100</span></strong>
+            <hr>
+            <h5 class="card-title text-left">Net Income: &nbsp; <strong id="ContentPlaceHolder_netIncome" class="badge badge-secondary">@netIncome</strong></h5>
         </div>
-
-        <br />
-
-        <div class="border p-2">
-            <h6 class="card-title">Revenue</h6>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Transaction Date</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col">Transaction Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <th scope="row">1</th>
-                        <td scope="row">Thu, 14 Jul 2022</td>
-                        <td scope="row">200</td>
-                        <td scope="row">Debit</td>
-
-
-                    </tr>
-
-
-
-                </tbody>
-            </table>
-            <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_revenueSum" class="badge badge-primary">200</span></strong>
-        </div>
-
-        <hr>
-        <h5 class="card-title text-left">Net Income: &nbsp; <strong id="ContentPlaceHolder_netIncome" class="badge badge-secondary">100</strong></h5>
     </div>
-</div>
+}
+else
+{
+    <h4 class="display-4 text-danger text-center">No Transaction Found</h4>
+}
+
+
 

@@ -7,6 +7,13 @@
 
     var dbContext = new AccountingCycleContext(_context);
     var FinancialElementType = await dbContext.FinancialElementType.ToListAsync();
+    var GeneralJournalEntries = await dbContext.GeneralJournalEntries.ToListAsync();
+    var JournalEntries = await dbContext.JournalEntries.ToListAsync();
+    var Transactiontype = await dbContext.Transactiontype.ToListAsync();
+
+    var CurrentUserGeneralJournalEntries = GeneralJournalEntries.Where(x => x.UserId == Int32.Parse(User.FindFirst("UserId").Value));
+
+
 }
 
 <div class="text-center">
@@ -14,8 +21,6 @@
 
 </div>
 
-<input type="hidden" name="ctl00$ContentPlaceHolder$debitList" id="debitList" value="[]">
-<input type="hidden" name="ctl00$ContentPlaceHolder$creditList" id="creditList" value="[]">
 
 <div id="errorMessage" class="alert alert-danger" style="display: none;">
     <strong><icon class="bi bi-dash-circle-fill"></icon></strong> <span id="errorText"></span>
@@ -24,233 +29,434 @@
     </button>
 </div>
 
-<div class="card">
-    <div class="card-body">
+@using (Html.BeginForm("GeneralJournal", "Dashboard"))
+{
+    @Html.AntiForgeryToken()
 
-        <div class="row g-3">
+    <input type="hidden" name="DebitList" id="debitList" value="[]">
+    <input type="hidden" name="CreditList" id="creditList" value="[]">
 
-            <div class="col-5">
-                <div class="form-group">
-                    <label for="transactionDate" class="form-label">Start Date</label>
-                    <input name="ctl00$ContentPlaceHolder$transactionDate" type="date" id="transactionDate" class="form-control">
-                </div>
+    <div class="card">
+        <div class="card-body">
 
-            </div>
+            <div class="row g-3">
 
-
-
-        </div><!-- Vertical Form -->
-        <div class="row g-3">
-            <div class="col-12 text-left">
-                <h5 class="card-title">Debit</h5>
-            </div>
-            <div class="col-5">
-                <div class="form-group">
-                    <label for="ElementListDebit" class="form-label">Select Element Type</label>
-                    <select name="ctl00$ContentPlaceHolder$ElementListDebit" id="ElementListDebit" class="form-control">
-                        <option value="0">Select Element Type</option>
-
-                        @if (FinancialElementType != null && FinancialElementType.Any())
-                        {
-                            foreach (var item in FinancialElementType)
-                            {
-                                <option value="@item.Id">@item.TypeName</option>
-
-                            }
-                        }
-
-                    </select>
-
-                </div>
-
-
-            </div>
-            <div class="col-5">
-                <div class="form-group">
-                    <label for="debitAmount" class="form-label">Amount</label>
-                    <input type="number" class="form-control" id="debitAmount">
-                </div>
-
-            </div>
-            <div class="col-2">
-                <div class="form-group">
-                    <label class="form-label"></label>
-                    <div>
-                        <button type="button" class="btn btn-success" clientidmode="static" onclick="AddDebitEntry()">Add</button>
+                <div class="col-5">
+                    <div class="form-group">
+                        <label for="transactionDate" class="form-label">Start Date</label>
+                        <input name="TransactionDate" type="date" id="transactionDate" class="form-control">
                     </div>
 
                 </div>
 
             </div>
-            <div class="col-12">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
+            <div class="row g-3">
+                <div class="col-12 text-left">
+                    <h5 class="card-title">Debit</h5>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="ElementListDebit" class="form-label">Select Element Type</label>
+                        <select name="ElementListDebit" id="ElementListDebit" class="form-control">
+                            <option value="0">Select Element Type</option>
 
-                            <th scope="col">Element Type</th>
-                            <th scope="col">Amount</th>
-
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="debitTbl">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="row g-3">
-            <div class="col-12 text-left">
-                <h5 class="card-title">Credit</h5>
-            </div>
-            <div class="col-5">
-                <div class="form-group">
-                    <label for="ElementListCredit" class="form-label">Select Element Type</label>
-                    <select name="ctl00$ContentPlaceHolder$ElementListCredit" id="ElementListCredit" class="form-control">
-                        <option value="0">Select Element Type</option>
-
-                        @if (FinancialElementType != null && FinancialElementType.Any())
-                        {
-                            foreach (var item in FinancialElementType)
+                            @if (FinancialElementType != null && FinancialElementType.Any())
                             {
-                                <option value="@item.Id">@item.TypeName</option>
+                                foreach (var item in FinancialElementType)
+                                {
+                                    <option value="@item.Id">@item.TypeName</option>
 
+                                }
                             }
-                        }
 
-                    </select>
+                        </select>
+
+                    </div>
+
 
                 </div>
-
-
-            </div>
-            <div class="col-5">
-                <div class="form-group">
-                    <label for="creditAmount" class="form-label">Amount</label>
-                    <input type="number" class="form-control" id="creditAmount">
-                </div>
-
-            </div>
-            <div class="col-2">
-                <div class="form-group">
-                    <label class="form-label"></label>
-                    <div>
-                        <button type="button" class="btn btn-success" clientidmode="static" onclick="AddCreditEntry()">Add</button>
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="debitAmount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="debitAmount">
                     </div>
 
                 </div>
 
-            </div>
-            <div class="col-12">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="debitAccountTitle" class="form-label">Account Title</label>
+                        <input type="text" class="form-control" id="debitAccountTitle">
+                    </div>
 
-                            <th scope="col">Element Type</th>
-                            <th scope="col">Amount</th>
+                </div>
 
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="creditTbl">
-                    </tbody>
-                </table>
+                <div class="col-2">
+                    <div class="form-group">
+                        <label class="form-label"></label>
+                        <div>
+                            <button type="button" class="btn btn-success" clientidmode="static" onclick="AddDebitEntry()">Add</button>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="col-12">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+
+                                <th scope="col">Element Type</th>
+                                <th scope="col">Account Title</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="debitTbl">
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            <div class="row g-3">
+                <div class="col-12 text-left">
+                    <h5 class="card-title">Credit</h5>
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="ElementListCredit" class="form-label">Select Element Type</label>
+                        <select name="ctl00$ContentPlaceHolder$ElementListCredit" id="ElementListCredit" class="form-control">
+                            <option value="0">Select Element Type</option>
+
+                            @if (FinancialElementType != null && FinancialElementType.Any())
+                            {
+                                foreach (var item in FinancialElementType)
+                                {
+                                    <option value="@item.Id">@item.TypeName</option>
+
+                                }
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+                <div class="col-3">
+                    <div class="form-group">
+                        <label for="creditAmount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="creditAmount">
+                    </div>
+
+                </div>
+
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="creditAccountTitle" class="form-label">Account Title</label>
+                        <input type="text" class="form-control" id="creditAccountTitle">
+                    </div>
+
+                </div>
+
+                <div class="col-2">
+                    <div class="form-group">
+                        <label class="form-label"></label>
+                        <div>
+                            <button type="button" class="btn btn-success" clientidmode="static" onclick="AddCreditEntry()">Add</button>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="col-12">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+
+                                <th scope="col">Element Type</th>
+                                <th scope="col">Account Title</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="creditTbl">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <div class="row g-3">
+                <div class="text-center">
+                    <input type="submit" name="btnSubmit" value="Submit" onclick="return VerifyEntry();" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
+
+                </div>
+            </div>
+
         </div>
-        <div class="row g-3">
-            <div class="text-center">
-                <input type="submit" name="ctl00$ContentPlaceHolder$btnSubmit" value="Submit" onclick="return VerifyEntry();" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
-
-            </div>
-        </div>
-
     </div>
-</div>
+}
+
+
 
 <h1>Transactions history</h1>
 
 <div class="card">
     <div class="card-body">
 
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Transaction Date</th>
-                    <th scope="col">Transactions</th>
-                    <th scope="col">Actions</th>
+        @if (CurrentUserGeneralJournalEntries.Count() > 0)
+        {
+            int count = 0;
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Transaction Date</th>
+                        <th class="text-center" scope="col">Transactions</th>
+                        <th scope="col">Actions</th>
 
-                </tr>
-            </thead>
-            <tbody>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var generalJournalEntry in CurrentUserGeneralJournalEntries)
+                    {
+                        count++;
 
-                <tr>
-                    <th scope="row">1</th>
-                    <td scope="row">Thu, 14 Jul 2022</td>
-                    <td>
+                        <tr>
+                            <th scope="row">@count</th>
+                            <td scope="row">@generalJournalEntry.TransactionDate.ToString("dd MMMM yyyy")</td>
+                            <td>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Account Title</th>
+                                            <th scope="col">Amount</th>
+                                            <th scope="col">Debit/Creadit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var entry in JournalEntries)
+                                        {
+                                            if (entry.JournalId == generalJournalEntry.Id)
+                                            {
+                                                <tr>
+                                                    @foreach (var elementType in FinancialElementType)
+                                                    {
+                                                        if (entry.ElementTypeId == elementType.Id)
+                                                        {
+                                                            <td>@entry.AccountTitle (@elementType.TypeName)</td>
+                                                            <td>@entry.Amount</td>
+                                                        }
+                                                    }
 
-                        <table class="table table-striped">
+                                                    @foreach (var transactiontype in Transactiontype)
+                                                    {
+                                                        if (entry.TransactionTypeId == transactiontype.Id)
+                                                        {
+                                                            <td class="text-center">@transactiontype.TypeName</td>
+                                                        }
+                                                    }
+                                                </tr>
+                                            }
+                                        }
 
+                                    </tbody>
+                                </table>
+                            </td>
 
+                            <td>
+                                @*<a onclick="if (!confirm('Are you sure you want delete?')) return false;" id="" class="btn btn-danger actionBtn btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="" href="javascript:__doPostBack('ctl00$ContentPlaceHolder$GeneralEntryRepeater$ctl00$btnDelete','')" data-original-title="Delete">Delete</a>*@
+                                <form asp-controller="Dashboard" asp-action="EntryDelete" asp-route-Id="@generalJournalEntry.Id" method="post">
 
-                            <tbody>
+                                    <div class="text-center">
+                                        <input type="submit" name="" value="Delete" onclick="if (!confirm('Are you sure you want delete?')) return false;" id="" class="btn btn-danger">
 
-                                <tr>
-                                    <td>Asset &nbsp;(100)</td>
-                                    <td class="text-center">Debit</td>
-                                </tr>
+                                    </div>
 
-                                <tr>
-                                    <td>Expense &nbsp;(100)</td>
-                                    <td class="text-center">Credit</td>
-                                </tr>
+                                </form>
+                            </td>
+                        </tr>
+                    }
 
-                            </tbody>
-                        </table>
-                    </td>
-
-
-
-                    <td>
-                        <a onclick="if (!confirm('Are you sure you want delete?')) return false;" id="ContentPlaceHolder_GeneralEntryRepeater_btnDelete_0" class="btn btn-danger actionBtn btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="" href="javascript:__doPostBack('ctl00$ContentPlaceHolder$GeneralEntryRepeater$ctl00$btnDelete','')" data-original-title="Delete">Delete</a>
-                    </td>
-                </tr>
-
-                <tr>
-                    <th scope="row">2</th>
-                    <td scope="row">Thu, 14 Jul 2022</td>
-                    <td>
-
-                        <table class="table table-striped">
-
-
-
-                            <tbody>
-
-                                <tr>
-                                    <td>Liability &nbsp;(230)</td>
-                                    <td class="text-center">Debit</td>
-                                </tr>
-
-                                <tr>
-                                    <td>Capital &nbsp;(230)</td>
-                                    <td class="text-center">Credit</td>
-                                </tr>
-
-                            </tbody>
-                        </table>
-                    </td>
-
-
-
-                    <td>
-                        <a onclick="if (!confirm('Are you sure you want delete?')) return false;" id="ContentPlaceHolder_GeneralEntryRepeater_btnDelete_1" class="btn btn-danger actionBtn btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="" href="javascript:__doPostBack('ctl00$ContentPlaceHolder$GeneralEntryRepeater$ctl01$btnDelete','')" data-original-title="Delete">Delete</a>
-                    </td>
-                </tr>
-
-
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <h4 class="display-4 text-danger text-center">No Transaction Found</h4>
+        }
 
     </div>
 </div>
+
+
+<script type="text/javascript">
+
+    var ENTRY_TEMPLATE = "<tr id='[:Id]'>" +
+        "<td>[:ElementType]</td>" +
+        "<td>[:AccountTitle]</td>" +
+        "<td>[:Amount]</td>" +
+        "<td><a href='javascript:void(0)' onclick='[:fnName](this)' class='btn btn-danger btn-sm' data-bs-toggle='tooltip' data-bs-placement='top' title='Delete'>Delete</a></td></tr>";
+
+    var debitCounter = 0;
+    var creditCounter = 0;
+
+    function AddDebitEntry() {
+        var transactionDate = document.getElementById("transactionDate");
+        if (transactionDate.value == null || transactionDate.value == "") {
+            $('#errorText').text("Kindly select date");
+            $('#errorMessage').show(100);
+            return false;
+        }
+
+        var ElementListDebit = document.getElementById("ElementListDebit");
+        if (ElementListDebit.value <= 0) {
+            $('#errorText').text("Kindly select financial element type");
+            $('#errorMessage').show(100);
+            return false;
+        }
+
+        var debitAmount = document.getElementById("debitAmount");
+        if (debitAmount.value == null || debitAmount.value == "") {
+            $('#errorText').text("Kindly provide amount");
+            $('#errorMessage').show(100);
+            return false;
+        }
+
+        var debitAccountTitle = document.getElementById("debitAccountTitle");
+        if (debitAccountTitle.value == null || debitAccountTitle.value == "") {
+            $('#errorText').text("Kindly provide Account Title");
+            $('#errorMessage').show(100);
+            return false;
+        }
+
+        var debitList = JSON.parse(document.getElementById("debitList").value);
+        console.log(debitList);
+        debitList.push({
+            Id: debitCounter,
+            ElementTypeId: ElementListDebit.value,
+            TransactionTypeId: 1,
+            Amount: debitAmount.value,
+            AccountTitle: debitAccountTitle.value
+        });
+        document.getElementById("debitList").value = JSON.stringify(debitList);
+        document.getElementById("debitTbl").innerHTML += ENTRY_TEMPLATE.replace("[:Id]", debitCounter).replace("[:ElementType]", $("#ElementListDebit option:selected").text())
+            .replace("[:AccountTitle]", debitAccountTitle.value).replace("[:Amount]", debitAmount.value).replace("[:fnName]", "deleteDebit");
+        $('#errorMessage').hide(0);
+        ElementListDebit.value = "0";
+        debitAccountTitle.value = "";
+        debitAmount.value = "";
+        debitCounter++;
+
+
+
+    }
+
+    function deleteDebit(element) {
+        var debitList = JSON.parse(document.getElementById("debitList").value);
+        var updatedList = [];
+        debitList.forEach((item) => {
+            if (item.Id != element.parentElement.parentElement.id) {
+                updatedList.push(item);
+            }
+        });
+        element.parentElement.parentElement.remove();
+        document.getElementById("debitList").value = JSON.stringify(updatedList);
+        console.log(updatedList);
+    }
+
+    function AddCreditEntry() {
+        var transactionDate = document.getElementById("transactionDate");
+        if (transactionDate.value == null || transactionDate.value == "") {
+            $('#errorText').text("Kindly select date");
+            $('#errorMessage').show(100);
+            return false;
+        }
+
+        var ElementListcredit = document.getElementById("ElementListCredit");
+        if (ElementListcredit.value <= 0) {
+            $('#errorText').text("Kindly select financial element type");
+            $('#errorMessage').show(100);
+            return false;
+        }
+
+        var creditAmount = document.getElementById("creditAmount");
+        if (creditAmount.value == null || creditAmount.value == "") {
+            $('#errorText').text("Kindly provide amount");
+            $('#errorMessage').show(100);
+            return false;
+        }
+
+        var creditAccountTitle = document.getElementById("creditAccountTitle");
+        if (creditAccountTitle.value == null || creditAccountTitle.value == "") {
+            $('#errorText').text("Kindly provide Account Title");
+            $('#errorMessage').show(100);
+            return false;
+        }
+
+        var creditList = JSON.parse(document.getElementById("creditList").value);
+        console.log(creditList);
+        creditList.push({
+            Id: creditCounter,
+            ElementTypeId: ElementListcredit.value,
+            TransactionTypeId: 2,
+            Amount: creditAmount.value,
+            AccountTitle: creditAccountTitle.value
+        });
+        document.getElementById("creditList").value = JSON.stringify(creditList);
+        document.getElementById("creditTbl").innerHTML += ENTRY_TEMPLATE.replace("[:Id]", creditCounter).replace("[:ElementType]", $("#ElementListCredit option:selected").text())
+            .replace("[:AccountTitle]", creditAccountTitle.value).replace("[:Amount]", creditAmount.value).replace("[:fnName]", "deleteCredit");
+        $('#errorMessage').hide(0);
+        ElementListcredit.value = "0";
+        creditAccountTitle.value = "";
+        creditAmount.value = "";
+        creditCounter++;
+
+
+
+    }
+
+    function deleteCredit(element) {
+        var creditList = JSON.parse(document.getElementById("creditList").value);
+        var updatedList = [];
+        creditList.forEach((item) => {
+            if (item.Id != element.parentElement.parentElement.id) {
+                updatedList.push(item);
+            }
+        });
+        element.parentElement.parentElement.remove();
+        document.getElementById("creditList").value = JSON.stringify(updatedList);
+        console.log(updatedList);
+    }
+
+    function VerifyEntry() {
+        var transactionDate = document.getElementById("transactionDate");
+        if (transactionDate.value == null || transactionDate.value == "") {
+            $('#errorText').text("Kindly select date");
+            $('#errorMessage').show(100);
+            return false;
+        }
+
+        var creditList = JSON.parse(document.getElementById("creditList").value);
+        var debitList = JSON.parse(document.getElementById("debitList").value);
+        var creditSum = 0;
+        creditList.forEach((item) => {
+            creditSum += Number(item.Amount);
+        });
+        var debitSum = 0;
+        debitList.forEach((item) => {
+            debitSum += Number(item.Amount);
+        });
+        //console.log(debitSum);
+        //console.log(creditSum);
+        if (creditSum == debitSum) {
+            return true;
+        } else {
+            $('#errorText').text("Debit and Credit should be equal");
+            $('#errorMessage').show(100);
+            return false;
+        }
+        return false;
+    }
+</script>
 

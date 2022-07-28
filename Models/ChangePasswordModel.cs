@@ -8,14 +8,14 @@ namespace AccountingCycle.Models
 {
     public class ChangePasswordModel
     {
-        [Required(ErrorMessage = "Email is Required.")]
-        [Display(Name = "Email: ")]
-        public string Email { get; set; }
+        //[Required(ErrorMessage = "Email is Required.")]
+        //[Display(Name = "Email: ")]
+        //public string Email { get; set; }
 
-        [Required(ErrorMessage = "Old Password is Required.")]
-        [Display(Name = "Old Password: ")]
-        [DataType(DataType.Password)]
-        public string OldPassword { get; set; }
+        //[Required(ErrorMessage = "Old Password is Required.")]
+        //[Display(Name = "Old Password: ")]
+        //[DataType(DataType.Password)]
+        //public string OldPassword { get; set; }
 
         [Display(Name = "New Password: ")]
         [Required(ErrorMessage = "New Password is Required.")]
