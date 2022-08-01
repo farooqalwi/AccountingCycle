@@ -1,4 +1,5 @@
-﻿@using AccountingCycle.DataBaseContext
+﻿@model IEnumerable<AccountingCycle.DataBaseContext.GeneralJournalEntries>
+@using AccountingCycle.DataBaseContext
 @using Microsoft.EntityFrameworkCore
 @inject DbContextOptions<AccountingCycleContext> _context
 
@@ -13,142 +14,6 @@
 
     var CurrentUserGeneralJournalEntries = GeneralJournalEntries.Where(x => x.UserId == Int32.Parse(User.FindFirst("UserId").Value));
 
-    double assetDebit = 0;
-    double assetCredit = 0;
-    double totalAsset = 0;
-
-    double expenseDebit = 0;
-    double expenseCredit = 0;
-    double totalExpense = 0;
-
-    double liabilityDebit = 0;
-    double liabilityCredit = 0;
-    double totalLiability = 0;
-
-    double revenueDebit = 0;
-    double revenueCredit = 0;
-    double totalRevenue = 0;
-
-    double capitalDebit = 0;
-    double capitalCredit = 0;
-    double totalCapital = 0;
-
-    if (CurrentUserGeneralJournalEntries.Count() > 0)
-    {
-        foreach (var generalJournalEntry in CurrentUserGeneralJournalEntries)
-        {
-            foreach (var entry in JournalEntries)
-            {
-                if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 1)
-                {
-
-                    @if (entry.TransactionTypeId == 1)
-                    {
-                        assetDebit += entry.Amount;
-                    }
-                    else if (entry.TransactionTypeId == 2)
-                    {
-                        assetCredit += entry.Amount;
-                    }
-                }
-                else if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 2)
-                {
-
-                    @if (entry.TransactionTypeId == 1)
-                    {
-                        expenseDebit += entry.Amount;
-                    }
-                    else if (entry.TransactionTypeId == 2)
-                    {
-                        expenseCredit += entry.Amount;
-                    }
-                }
-                else if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 3)
-                {
-
-                    @if (entry.TransactionTypeId == 1)
-                    {
-                        liabilityDebit += entry.Amount;
-                    }
-                    else if (entry.TransactionTypeId == 2)
-                    {
-                        liabilityCredit += entry.Amount;
-                    }
-                }
-                else if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 4)
-                {
-
-                    @if (entry.TransactionTypeId == 1)
-                    {
-                        revenueDebit += entry.Amount;
-                    }
-                    else if (entry.TransactionTypeId == 2)
-                    {
-                        revenueCredit += entry.Amount;
-                    }
-                }
-                else if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 5)
-                {
-
-                    @if (entry.TransactionTypeId == 1)
-                    {
-                        capitalDebit += entry.Amount;
-                    }
-                    else if (entry.TransactionTypeId == 2)
-                    {
-                        capitalCredit += entry.Amount;
-                    }
-                }
-            }
-        }
-
-
-    }
-
-    if (assetDebit >= assetCredit)
-    {
-        totalAsset = assetDebit - assetCredit;
-    }
-    else
-    {
-        totalAsset = assetCredit - assetDebit;
-    }
-
-    if (expenseDebit >= expenseCredit)
-    {
-        totalExpense = expenseDebit - expenseCredit;
-    }
-    else
-    {
-        totalExpense = expenseCredit - expenseDebit;
-    }
-
-    if (liabilityDebit >= liabilityCredit)
-    {
-        totalLiability = liabilityDebit - liabilityCredit;
-    }
-    else
-    {
-        totalLiability = liabilityCredit - liabilityDebit;
-    }
-
-    if (revenueDebit >= revenueCredit)
-    {
-        totalRevenue = revenueDebit - revenueCredit;
-    }
-    else
-    {
-        totalRevenue = revenueCredit - revenueDebit;
-    }
-
-    if (capitalDebit >= capitalCredit)
-    {
-        totalCapital = capitalDebit - capitalCredit;
-    }
-    else
-    {
-        totalCapital = capitalCredit - capitalDebit;
-    }
 
 }
 
@@ -157,59 +22,89 @@
 
 </div>
 
-<div class="card">
-    <div class="card-body">
+<form asp-action="TrialBalance" asp-controller="Dashboard">
+    <div class="card mb-2">
+        <div class="card-body">
+            <h5 class="card-title"></h5>
+            <div class="row g-3">
+                <div class="col-5">
+                    <div class="form-group">
+                        <label for="date" class="form-label">Select Date</label>
+                        <input name="date" type="date" id="date" class="form-control">
+                    </div>
 
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Element Type</th>
-                    <th scope="col">Debit</th>
-                    <th scope="col">Credit</th>
-
-                </tr>
-            </thead>
-            <tbody>
-
-                <tr>
-                    <td scope="row">1</td>
-                    <td scope="row">Asset</td>
-                    <td scope="row">@totalAsset</td>
-                    <td scope="row"></td>
-                </tr>
-
-                <tr>
-                    <td scope="row">2</td>
-                    <td scope="row">Expense</td>
-                    <td scope="row">@totalExpense</td>
-                    <td scope="row"></td>
-                </tr>
-
-                <tr>
-                    <td scope="row">3</td>
-                    <td scope="row">Liability</td>
-                    <td scope="row"></td>
-                    <td scope="row">@totalLiability</td>
-                </tr>
-
-                <tr>
-                    <td scope="row">4</td>
-                    <td scope="row">Revenue</td>
-                    <td scope="row"></td>
-                    <td scope="row">@totalRevenue</td>
-                </tr>
-
-                <tr>
-                    <td scope="row">5</td>
-                    <td scope="row">Capital</td>
-                    <td scope="row"></td>
-                    <td scope="row">@totalCapital</td>
-                </tr>
-
-            </tbody>
-        </table>
-
+                    <input type="submit" name="btnSubmit" value="Generate" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</form>
+
+@if (Model != null && Model.Count() > 0 && Model.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 id="ContentPlaceHolder_companyName" class="card-title text-center">@User.FindFirst("UserName").Value and Co.</h5>
+            <h5 class="card-title text-center">Trial Balance</h5>
+            <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">For the date @Model.FirstOrDefault().TransactionDate.ToString("MMMM dd, yyyy")</h5>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Account Title</th>
+                        <th class="text-right" scope="col">Debit $</th>
+                        <th class="text-right" scope="col">Credit $</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @{ 
+                        int debitSum = 0;
+                        int creditSum = 0;
+                    }
+
+                    @foreach (var generalJournalEntry in Model)
+                    {
+                        foreach (var entry in JournalEntries)
+                        {
+                            @if (entry.JournalId == generalJournalEntry.Id)
+                            {
+                                <tr>
+
+                                    <td scope="row">@entry.AccountTitle</td>
+
+                                    @if (entry.TransactionTypeId == 1)
+                                    {
+                                        debitSum += @entry.Amount;
+                                        <td class="text-right" scope="row">@entry.Amount</td>
+                                        <td scope="row"></td>
+                                    }
+                                    else if (entry.TransactionTypeId == 2)
+                                    {
+                                        creditSum += @entry.Amount;
+                                        <td scope="row"></td>
+                                        <td class="text-right" scope="row">@entry.Amount</td>
+                                    }
+                                </tr>
+                            }
+                        }
+                    }
+
+                    <tr>
+                        <td scope="row"></td>
+                        <td class="text-right" scope="row"><strong>@debitSum</strong></td>
+                        <td class="text-right" scope="row"><strong>@creditSum</strong></td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+}
+else
+{
+    <h4 class="display-4 text-danger text-center">No Transaction Found</h4>
+}
 

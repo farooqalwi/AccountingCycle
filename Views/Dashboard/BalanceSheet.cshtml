@@ -1,5 +1,15 @@
-﻿@{
+﻿@model IEnumerable<AccountingCycle.DataBaseContext.GeneralJournalEntries>
+@using AccountingCycle.DataBaseContext
+@using Microsoft.EntityFrameworkCore
+@inject DbContextOptions<AccountingCycleContext> _context
+
+@{
     ViewData["Title"] = "Balance Sheet";
+
+    var dbContext = new AccountingCycleContext(_context);
+    var FinancialElementType = await dbContext.FinancialElementType.ToListAsync();
+    var JournalEntries = await dbContext.JournalEntries.ToListAsync();
+    var Transactiontype = await dbContext.Transactiontype.ToListAsync();
 }
 
 <div class="text-center">
@@ -7,113 +17,210 @@
 
 </div>
 
+<form asp-action="BalanceSheet" asp-controller="Dashboard">
+    <div class="card mb-2">
+        <div class="card-body">
+            <h5 class="card-title"></h5>
+            <div class="row g-3">
+                <div class="col-5">
+                    <div class="form-group">
+                        <label for="date" class="form-label">Select Date</label>
+                        <input name="date" type="date" id="date" class="form-control">
+                    </div>
 
-<div class="card mb-2">
-    <div class="card-body">
-        <h5 class="card-title"></h5>
+                    <input type="submit" name="btnSubmit" value="Generate" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 
-        <div class="row g-3">
-            <div class="col-5">
-                <div class="form-group">
-                    <label for="date" class="form-label">Select Date</label>
-                    <input name="ctl00$ContentPlaceHolder$date" type="date" id="ContentPlaceHolder_date" class="form-control">
+
+@if (Model != null && Model.Count() > 0 && Model.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 id="ContentPlaceHolder_companyName" class="card-title text-center">@User.FindFirst("UserName").Value and Co.</h5>
+            <h5 class="card-title text-center">Balance Sheet</h5>
+            <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">As at @Model.FirstOrDefault().TransactionDate.ToString("MMMM dd, yyyy")</h5>
+
+            @{
+                double revenueDebitSum = 0;
+                double revenueCreditSum = 0;
+                double revenueTotal = 0;
+                double netIncome = 0;
+
+                int revenueSum = 0;
+                int expenseSum = 0;
+                int capital = 0;
+                int drawing = 0;
+                int capital_profit_loss = 0;
+                string captialTitle = "";
+
+                int assetSum = 0;
+                int liabilitySum = 0;
+                int liability_equity = 0;
+            }
+
+
+
+        <div class="row border-0">
+            <div class="col-6">
+                <div class="row border">
+                    <div class="col-9 border">
+                        <strong>Assets</strong>
+                    </div>
+                    <div class="col-3 border text-right">
+                        <strong> $</strong>
+                    </div>
+
+                    @foreach (var generalJournalEntry in Model)
+                    {
+                        foreach (var entry in JournalEntries)
+                        {
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 1)
+                            {
+                                if (!entry.AccountTitle.ToLower().Contains("accumulated depreciation"))
+                                {
+                                    assetSum += entry.Amount;
+
+                                    <div class="col-9 border">
+                                        @entry.AccountTitle
+                                    </div>
+                                    <div class="col-3 border text-right">
+                                        @entry.Amount
+                                    </div>
+                                }
+                                else
+                                {
+                                    assetSum -= entry.Amount;
+
+                                    <div class="col-9 border">
+                                        @entry.AccountTitle
+                                    </div>
+                                    <div class="col-3 border text-right">
+                                        - @entry.Amount
+                                    </div>
+                                }
+
+
+
+
+                            }
+
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 5)
+                            {
+                                capital = entry.Amount;
+                                captialTitle = entry.AccountTitle;
+
+                            }
+
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 4)
+                            {
+                                revenueSum += entry.Amount;
+                            }
+
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 2)
+                            {
+                                expenseSum += entry.Amount;
+                            }
+
+
+                        }
+                    }
                 </div>
 
-                <input type="submit" name="ctl00$ContentPlaceHolder$btnSubmit" value="Generate" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
             </div>
 
+            @if (revenueSum > expenseSum)
+            {
+                int netProfit = revenueSum - expenseSum;
+                int addInCapital = capital + netProfit;
+                capital_profit_loss = addInCapital;
 
+            }
+            else if (expenseSum > revenueSum)
+            {
+                int netLoss = expenseSum - revenueSum;
+                int lessFromCaptial = capital - netLoss;
+                capital_profit_loss = lessFromCaptial;
+            }
 
+            <div class="col-6">
+                <div class="row border">
+                    <div class="col-9 border">
+                        <strong>Liabilities and Owner’s Equity</strong>
+                    </div>
+                    <div class="col-3 border text-right">
+                        <strong> $</strong>
+                    </div>
 
-        </div>
+                    @foreach (var generalJournalEntry in Model)
+                    {
+                        foreach (var entry in JournalEntries)
+                        {
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 3)
+                            {
+                                liabilitySum += entry.Amount;
 
-    </div>
-</div>
+                                <div class="col-9 border">
+                                    @entry.AccountTitle
+                                </div>
+                                <div class="col-3 border text-right">
+                                    @entry.Amount
+                                </div>
+                            }
 
-<div class="card">
-    <div class="card-body">
-        <h5 id="ContentPlaceHolder_companyName" class="card-title text-center">UBIT</h5>
-        <h5 class="card-title text-center">Balance Sheet</h5>
-        <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">Thu, 14 Jul 2022</h5>
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 6)
+                            {
+                                drawing = entry.Amount;
+                                capital_profit_loss -= drawing;
 
-        <div class="row">
-            <div class="col-6 card p-1">
-                <h6 class="card-title">Asset</h6>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Transaction Date</th>
-                            <th scope="col">Amount</th>
-                            <th scope="col">Transaction Type</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                            }
+                        }
+                    }
 
-                        <tr>
-                            <th scope="row">1</th>
-                            <td scope="row">Thu, 14 Jul 2022</td>
-                            <td scope="row">100</td>
-                            <td scope="row">Debit</td>
+                    <div class="col-9 border">
+                        @captialTitle
+                    </div>
+                    <div class="col-3 border text-right">
+                        @capital_profit_loss
+                    </div>
 
+                    @{ 
+                        liability_equity += liabilitySum + capital_profit_loss;
+                    }
 
-
-                        </tr>
-
-
-
-                    </tbody>
-                </table>
-                <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_assetSum" class="badge badge-primary">100</span></strong>
+                </div>
             </div>
-            <div class="col-6 card p-1">
-                <h6 class="card-title">Liability</h6>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Transaction Date</th>
-                            <th scope="col">Amount</th>
-                            <th scope="col">Transaction Type</th>
-                        </tr>
-                    </thead>
-                    <tbody>
 
-                        <tr>
-                            <th scope="row">1</th>
-                            <td scope="row">Thu, 14 Jul 2022</td>
-                            <td scope="row">230</td>
-                            <td scope="row">Debit</td>
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-9 border">
 
+                    </div>
+                    <div class="col-3 border text-right">
+                        <strong>@assetSum</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-9 border">
 
-                        </tr>
-
-                        <tr>
-                            <th scope="row">2</th>
-                            <td scope="row">Thu, 14 Jul 2022</td>
-                            <td scope="row">200</td>
-                            <td scope="row">Credit</td>
-
-
-                        </tr>
-
-
-
-                    </tbody>
-                </table>
-                <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_liabilitySum" class="badge badge-primary">30</span></strong>
-                <hr />
-                <h6 class="card-title">Owners Equity</h6>
-                <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_equitySum" class="badge badge-primary">130</span></strong>
-                <hr />
-                <h5 class="card-title text-left">Liabilty + Owners Equity: &nbsp; <strong id="ContentPlaceHolder_liabEquitySum" class="badge badge-secondary">160</strong></h5>
+                    </div>
+                    <div class="col-3 border text-right">
+                        <strong>@liability_equity</strong>
+                    </div>
+                </div>
             </div>
         </div>
 
-
-
+        </div>
     </div>
-</div>
-
-
+}
+else
+{
+    <h4 class="display-4 text-danger text-center">No Transaction Found</h4>
+}

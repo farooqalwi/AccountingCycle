@@ -43,149 +43,98 @@
         <div class="card-body">
             <h5 id="ContentPlaceHolder_companyName" class="card-title text-center">@User.FindFirst("UserName").Value and Co.</h5>
             <h5 class="card-title text-center">Income Statement</h5>
-            <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">For the month ended, @Model.FirstOrDefault().TransactionDate.ToString("MMMM yyyy")</h5>
-            
+            <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">For the date @Model.FirstOrDefault().TransactionDate.ToString("MMMM dd, yyyy")</h5>
 
-            <div class="border p-2">
-                <h6 class="card-title">Expense</h6>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Transaction Date</th>
-                            <th scope="col">Amount</th>
-                            <th scope="col">Transaction Type</th>
-                        </tr>
-                    </thead>
-                    @{
-                        double expenseDebitSum = 0;
-                        double expenseCreditSum = 0;
-                        double expenseTotal = 0;
-                    }
+            @{
+                double revenueDebitSum = 0;
+                double revenueCreditSum = 0;
+                double revenueTotal = 0;
+                double netIncome = 0;
+            }
 
-                    <tbody>
-                        @if (Model != null && Model.Count() > 0 && Model.Any())
-                        {
-                            int count = 0;
-                            foreach (var generalJournalEntry in Model)
-                            {
-                                foreach (var entry in JournalEntries)
-                                {
-                                    if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 2)
-                                    {
-                                        count++;
-                                        <tr>
-                                            <th scope="row">@count</th>
-                                            <td scope="row">@generalJournalEntry.TransactionDate.ToString("dd MMMM yyyy")</td>
-                                            <td scope="row">@entry.Amount</td>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Account Title</th>
+                        <th class="text-right" scope="col">Debit $</th>
+                        <th class="text-right" scope="col">Credit $</th>
+                    </tr>
+                </thead>
 
-                                            @if (entry.TransactionTypeId == 1)
-                                            {
-                                                expenseDebitSum += entry.Amount;
-
-                                                <td scope="row">Debit</td>
-                                            }
-                                            else if (entry.TransactionTypeId == 2)
-                                            {
-                                                expenseCreditSum += entry.Amount;
-
-                                                <td scope="row">Credit</td>
-                                            }
-                                        </tr>
-                                    }
-                                }
-                            }
-                        }
-
-                    </tbody>
-                </table>
-                @{
-                    if (expenseDebitSum >= expenseCreditSum)
-                    {
-                        expenseTotal = expenseDebitSum - expenseCreditSum;
-                    }
-                    else
-                    {
-                        expenseTotal = expenseCreditSum - expenseDebitSum;
-                    }
-                }
-                <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_expenseSum" class="badge badge-primary">@expenseTotal</span></strong>
-            </div>
-
-            <br />
-
-            <div class="border p-2">
-                <h6 class="card-title">Revenue</h6>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Transaction Date</th>
-                            <th scope="col">Amount</th>
-                            <th scope="col">Transaction Type</th>
-                        </tr>
-                    </thead>
+                <tbody>
 
                     @{
-                        double revenueDebitSum = 0;
-                        double revenueCreditSum = 0;
-                        double revenueTotal = 0;
-                        double netIncome = 0;
+                        int revenueSum = 0;
+                        int expenseSum = 0;
                     }
 
-                    <tbody>
-                        @if (Model != null && Model.Count() > 0 && Model.Any())
+                    <tr>
+                        <td scope="row"><strong>Revenue:</strong></td>
+                        <td scope="row"></td>
+                        <td scope="row"></td>
+                    </tr>
+
+                    @foreach (var generalJournalEntry in Model)
+                    {
+                        foreach (var entry in JournalEntries)
                         {
-                            int count = 0;
-                            foreach (var generalJournalEntry in Model)
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 4)
                             {
-                                foreach (var entry in JournalEntries)
-                                {
-                                    if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 4)
-                                    {
-                                        count++;
-                                        <tr>
-                                            <th scope="row">@count</th>
-                                            <td scope="row">@generalJournalEntry.TransactionDate.ToString("dd MMMM yyyy")</td>
-                                            <td scope="row">@entry.Amount</td>
+                                revenueSum += entry.Amount;
+                                <tr>
+                                    <td scope="row">@entry.AccountTitle</td>
+                                    <td scope="row"></td>
+                                    <td class="text-right" scope="row">@entry.Amount</td>
 
-                                            @if (entry.TransactionTypeId == 1)
-                                            {
-                                                revenueDebitSum += entry.Amount;
-
-                                                <td scope="row">Debit</td>
-                                            }
-                                            else if (entry.TransactionTypeId == 2)
-                                            {
-                                                revenueCreditSum += entry.Amount;
-
-                                                <td scope="row">Credit</td>
-                                            }
-                                        </tr>
-                                    }
-                                }
+                                </tr>
                             }
                         }
-
-                    </tbody>
-                </table>
-                @{
-                    if (revenueDebitSum >= revenueCreditSum)
-                    {
-                        revenueTotal = revenueDebitSum - revenueCreditSum;
-                    }
-                    else
-                    {
-                        revenueTotal = revenueCreditSum - revenueDebitSum;
                     }
 
-                    netIncome = revenueTotal - expenseTotal;
-                }
-                <strong class="text-left">Total: &nbsp; <span id="ContentPlaceHolder_revenueSum" class="badge badge-primary">@revenueTotal</span></strong>
-            </div>
+                    <tr>
+                        <td scope="row"><strong>Expenses:</strong></td>
+                        <td scope="row"></td>
+                        <td scope="row"></td>
+                    </tr>
 
-            <hr>
-            <h5 class="card-title text-left">Net Income: &nbsp; <strong id="ContentPlaceHolder_netIncome" class="badge badge-secondary">@netIncome</strong></h5>
+                    @foreach (var generalJournalEntry in Model)
+                    {
+                        foreach (var entry in JournalEntries)
+                        {
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 2)
+                            {
+                                expenseSum += entry.Amount;
+                                <tr>
+                                    <td scope="row">@entry.AccountTitle</td>
+                                    <td class="text-right" scope="row">@entry.Amount</td>
+                                    <td scope="row"></td>
+                                </tr>
+                            }
+                        }
+                    }
+
+                    @if (revenueSum > expenseSum)
+                    {
+                        int netProfit = revenueSum - expenseSum;
+                        <tr>
+                            <td scope="row"><strong>Net Profit</strong></td>
+                            <td class="text-right" scope="row"><strong></strong></td>
+                            <td class="text-right" scope="row"><strong>@netProfit</strong></td>
+                        </tr>
+                    }
+                    else if (expenseSum > revenueSum)
+                    {
+                        int netLoss = expenseSum - revenueSum;
+                        <tr>
+                            <td scope="row"><strong>Net Loss</strong></td>
+                            <td class="text-right" scope="row"><strong></strong></td>
+                            <td class="text-right" scope="row"><strong>@netLoss</strong></td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
         </div>
     </div>
 }

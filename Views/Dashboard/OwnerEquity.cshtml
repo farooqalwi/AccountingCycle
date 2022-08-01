@@ -1,5 +1,15 @@
-﻿@{
+﻿@model IEnumerable<AccountingCycle.DataBaseContext.GeneralJournalEntries>
+@using AccountingCycle.DataBaseContext
+@using Microsoft.EntityFrameworkCore
+@inject DbContextOptions<AccountingCycleContext> _context
+
+@{
     ViewData["Title"] = "Owner Equity";
+
+    var dbContext = new AccountingCycleContext(_context);
+    var FinancialElementType = await dbContext.FinancialElementType.ToListAsync();
+    var JournalEntries = await dbContext.JournalEntries.ToListAsync();
+    var Transactiontype = await dbContext.Transactiontype.ToListAsync();
 }
 
 <div class="text-center">
@@ -7,61 +17,151 @@
 
 </div>
 
-<div class="card mb-2">
-    <div class="card-body">
+<form asp-action="OwnerEquity" asp-controller="Dashboard">
+    <div class="card mb-2">
+        <div class="card-body">
+            <h5 class="card-title"></h5>
+            <div class="row g-3">
+                <div class="col-5">
+                    <div class="form-group">
+                        <label for="date" class="form-label">Select Date</label>
+                        <input name="date" type="date" id="date" class="form-control">
+                    </div>
 
-        <div class="row g-3">
-            <div class="col-5">
-                <div class="form-group">
-                    <label for="date" class="form-label">Select Date</label>
-                    <input name="ctl00$ContentPlaceHolder$date" type="date" id="ContentPlaceHolder_date" class="form-control">
+                    <input type="submit" name="btnSubmit" value="Generate" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
                 </div>
-                <input type="submit" name="ctl00$ContentPlaceHolder$btnSubmit" value="Generate" id="ContentPlaceHolder_btnSubmit" class="btn btn-primary">
-
             </div>
+        </div>
+    </div>
+</form>
+
+
+@if (Model != null && Model.Count() > 0 && Model.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 id="ContentPlaceHolder_companyName" class="card-title text-center">@User.FindFirst("UserName").Value and Co.</h5>
+            <h5 class="card-title text-center">Statement of Owner’s Equity</h5>
+            <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">For the date @Model.FirstOrDefault().TransactionDate.ToString("MMMM dd, yyyy")</h5>
+
+            @{
+                double revenueDebitSum = 0;
+                double revenueCreditSum = 0;
+                double revenueTotal = 0;
+                double netIncome = 0;
+            }
+
+            <table class="table table-bordered">
+                
+                <tbody>
+
+                    @{
+                        int revenueSum = 0;
+                        int expenseSum = 0;
+                        int capital = 0;
+                        int drawing = 0;
+                        int capital_profit_loss = 0;
+                        string captialTitle = "";
+                    }
+
+
+                    @foreach (var generalJournalEntry in Model)
+                    {
+                        foreach (var entry in JournalEntries)
+                        {
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 5)
+                            {
+                                capital = entry.Amount;
+                                captialTitle = entry.AccountTitle;
+
+                                <tr>
+                                    <td scope="row">@entry.AccountTitle at start</td>
+
+                                    <td class="text-right" scope="row">@entry.Amount</td>
+
+                                </tr>
+                            }
+
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 4)
+                            {
+                                revenueSum += entry.Amount;
+                            }
+
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 2)
+                            {
+                                expenseSum += entry.Amount;
+                            }
+                        }
+                    }
+
+                    @if (revenueSum > expenseSum)
+                    {
+                        int netProfit = revenueSum - expenseSum;
+                        int addInCapital = capital + netProfit;
+                        capital_profit_loss = addInCapital;
+                        <tr>
+                            <td scope="row">Add Net Profit</td>
+                            <td class="text-right" scope="row">@netProfit</td>
+                        </tr>
+
+                        <tr>
+                            <td scope="row"></td>
+                            <td class="text-right" scope="row">@addInCapital</td>
+                        </tr>
+                    }
+                    else if (expenseSum > revenueSum)
+                    {
+                        int netLoss = expenseSum - revenueSum;
+                        int lessFromCaptial = capital - netLoss;
+                        capital_profit_loss = lessFromCaptial;
+
+                        <tr>
+                            <td scope="row">Less Net Loss</td>
+                            <td class="text-right" scope="row">- @netLoss</td>
+                        </tr>
+
+                        <tr>
+                            <td scope="row"></td>
+                            <td class="text-right" scope="row">@lessFromCaptial</td>
+                        </tr>
+                    }
+
+
+                    @foreach (var generalJournalEntry in Model)
+                    {
+                        foreach (var entry in JournalEntries)
+                        {
+                            @if (entry.JournalId == generalJournalEntry.Id && entry.ElementTypeId == 6)
+                            {
+                                drawing = entry.Amount;
+                                capital_profit_loss -= drawing;
+                                <tr>
+                                    <td scope="row">Less @entry.AccountTitle</td>
+
+                                    <td class="text-right" scope="row">- @entry.Amount</td>
+
+                                </tr>
+                            }
+
+                        }
+                    }
+
+                    <tr>
+                        <td scope="row">@captialTitle at end</td>
+
+                        <td class="text-right" scope="row"><strong>@capital_profit_loss</strong></td>
+                    </tr>
+
+
+                </tbody>
+            </table>
 
         </div>
-
     </div>
-</div>
-
-<div class="card">
-    <div class="card-body">
-        <h5 id="ContentPlaceHolder_companyName" class="card-title text-center">UBIT</h5>
-        <h5 class="card-title text-center">Owners Sheet</h5>
-        <h5 id="ContentPlaceHolder_generatedDate" class="card-title text-center">July 2022</h5>
-
-        <h6 class="card-title">Begining Balance of the year</h6>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Transaction Date</th>
-                    <th scope="col">Amount</th>
-                    <th scope="col">Transaction Type</th>
-                </tr>
-            </thead>
-            <tbody>
-
-                <tr>
-                    <th scope="row">1</th>
-                    <td scope="row">Thu, 14 Jul 2022</td>
-                    <td scope="row">230</td>
-                    <td scope="row">Credit</td>
+}
+else
+{
+    <h4 class="display-4 text-danger text-center">No Transaction Found</h4>
+}
 
 
-                </tr>
-
-
-
-            </tbody>
-        </table>
-        <strong id="ContentPlaceHolder_beginingBalance" class="badge badge-primary text-left">230</strong>
-        <h6 class="card-title">Net Income</h6>
-        <strong id="ContentPlaceHolder_netIncome" class="badge badge-primary text-left">100</strong>
-
-        <h6 class="card-title">Ending Balance of the year</h6>
-        <strong id="ContentPlaceHolder_endingBalance" class="badge badge-secondary text-left">130</strong>
-
-    </div>
-</div>

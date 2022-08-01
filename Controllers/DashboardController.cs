@@ -167,6 +167,14 @@ namespace AccountingCycle.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult TrialBalance(DateTime date)
+        {
+            var GeneralJournalEntries = _context.GeneralJournalEntries.ToList().Where(x => x.UserId == Int32.Parse(User.FindFirst("UserId").Value) && x.TransactionDate == date);
+
+            return View(GeneralJournalEntries);
+        }
+
         public IActionResult IncomeStatement()
         {
             return View();
@@ -175,7 +183,7 @@ namespace AccountingCycle.Controllers
         [HttpPost]
         public IActionResult IncomeStatement(DateTime date)
         {
-            var GeneralJournalEntries = _context.GeneralJournalEntries.ToList().Where(x => x.UserId == Int32.Parse(User.FindFirst("UserId").Value) && x.TransactionDate.Year == date.Year);
+            var GeneralJournalEntries = _context.GeneralJournalEntries.ToList().Where(x => x.UserId == Int32.Parse(User.FindFirst("UserId").Value) && x.TransactionDate == date);
 
             return View(GeneralJournalEntries);
         }
@@ -185,9 +193,25 @@ namespace AccountingCycle.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult OwnerEquity(DateTime date)
+        {
+            var GeneralJournalEntries = _context.GeneralJournalEntries.ToList().Where(x => x.UserId == Int32.Parse(User.FindFirst("UserId").Value) && x.TransactionDate == date);
+
+            return View(GeneralJournalEntries);
+        }
+
         public IActionResult BalanceSheet()
         {
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult BalanceSheet(DateTime date)
+        {
+            var GeneralJournalEntries = _context.GeneralJournalEntries.ToList().Where(x => x.UserId == Int32.Parse(User.FindFirst("UserId").Value) && x.TransactionDate == date);
+
+            return View(GeneralJournalEntries);
         }
     }
 }
